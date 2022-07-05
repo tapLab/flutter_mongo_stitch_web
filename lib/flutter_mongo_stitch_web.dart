@@ -20,7 +20,7 @@ class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
   bool _injected = false;
 
   Future<String> loadStitchUtilsAsset() async {
-    return await rootBundle.loadString('assets/js/stitchUtils.js');
+    return await rootBundle.loadString('js/stitchUtils.js');
   }
 
   static void registerWith(Registrar registrar) async {
