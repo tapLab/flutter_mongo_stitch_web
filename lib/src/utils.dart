@@ -21,3 +21,15 @@ Future<void> injectJSLibraries(List<String> libraries,
   (target ?? html.querySelector('head')).children.addAll(tags);
   return Future.wait(loading);
 }
+
+html.ScriptElement _createScriptTagFromSrc(String src) => html.ScriptElement()
+  ..type = "text/javascript"
+  ..charset = "utf-8"
+  ..async = false
+  //..defer = true
+  ..innerText = src;
+
+injectJsFromAsset({String src, html.HtmlElement target}) {
+  html.HtmlElement tag = _createScriptTagFromSrc(src);
+  (target ?? html.querySelector('head')).children.add(tag);
+}
