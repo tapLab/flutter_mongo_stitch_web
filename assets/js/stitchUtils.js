@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var mongoClient;
 var stitchAppClient;
