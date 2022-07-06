@@ -175,15 +175,19 @@ class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
     return Future.value(authResult);
   }
 
-//  @override
-//  Future/*<CoreStitchUser>*/ signInWithGoogle(String authCode) async{
-//    throw UnimplementedError('signInWithGoogle() has not been implemented.');
-//  }
-//
-//  @override
-//  Future/*<CoreStitchUser>*/ signInWithFacebook(String accessToken) async{
-//    throw UnimplementedError('signInWithFacebook() has not been implemented.');
-//  }
+  @override
+  Future/*<CoreStitchUser>*/ signInWithGoogle(String authCode) async {
+    var authResult = await _mongoClient
+        .signInWithGoogle(authCode); // implementation incomplete
+    return Future.value(authResult);
+  }
+
+  @override
+  Future/*<CoreStitchUser>*/ signInWithFacebook(String accessToken) async {
+    var authResult = await _mongoClient
+        .signInWithFacebook(accessToken); // implementation incomplete
+    return Future.value(authResult);
+  }
 
   @override
   Future signInWithCustomJwt(String accessToken) async {

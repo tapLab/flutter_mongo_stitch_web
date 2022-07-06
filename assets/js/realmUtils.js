@@ -10,20 +10,15 @@ function uint8ArrayToHex(uint8Array) {
 
 function Mongo() {
     Mongo.prototype.connectMongo  = function(appId) {
-        console.log('flutterMongoStitchWeb -> connectMongo, appId: ' + appId);
-        console.log('flutterMongoStitchWeb -> connectMongo, Realm: ',Realm);
         stitchAppClient = new Realm.App({ id: appId });
-        console.log('flutterMongoStitchWeb -> connectMongo, stitchAppClient: ',stitchAppClient);
-        console.log('flutterMongoStitchWeb -> connectMongo, currentUser: ',stitchAppClient.currentUser);
+        console.log('flutterMongoStitchWeb -> connectMongo with appId: ' + appId + ', currentUser: ',stitchAppClient.currentUser);
 
-        if (stitchAppClient.currentUser!=null) {
-            mongoClient = stitchAppClient.currentUser.mongoClient("mongodb-atlas");
-            console.log('flutterMongoStitchWeb -> connectMongo, mongoClient: ', mongoClient);
-        }
         this.sendAuthListenerEvent(null);
     }
 
-    /// -----------------------------------------------------
+
+    // mongo document methods
+
     Mongo.prototype.getCollection = function(databaseName, collectionName){
        return mongoClient.db(databaseName).collection(collectionName)
     }
@@ -154,10 +149,17 @@ function Mongo() {
         });
     }
 
-    // -------------------------------------------------------
+
+    // login methods
+
     Mongo.prototype.loginAnonymously  = async function(){
-        var user = await stitchAppClient.auth.loginWithCredential(
-            new stitch.AnonymousCredential())
+        const credentials = Realm.Credentials.anonymous();
+
+        try {
+            var user = await stitchAppClient.logIn(credentials);
+        } catch (err) {
+            console.error("flutterMongoStitchWeb -> Failed to login anonymously", err);
+        }
 
         var userObject = {
             "id": user.id
@@ -175,13 +177,12 @@ function Mongo() {
         console.log('flutterMongoStitchWeb -> signInWithUsernamePassword, username: ' + username);
 
         const credentials = Realm.Credentials.emailPassword(username, password);
-        console.log('flutterMongoStitchWeb -> signInWithUsernamePassword, credentials: ',credentials);
 
         try {
             var user = await stitchAppClient.logIn(credentials);
             console.log('flutterMongoStitchWeb -> signInWithUsernamePassword, user: ',user);
         } catch (err) {
-            console.error("Failed to log in", err);
+            console.error("flutterMongoStitchWeb -> Failed to sign in with username and password", err);
         }
 
         var userObject = {
@@ -199,8 +200,13 @@ function Mongo() {
     }
 
     Mongo.prototype.signInWithGoogle = async function(authCode){
-        var user = await stitchAppClient.auth.loginWithCredential(
-            new stitch.GoogleCredential(authCode))
+        const credentials = Realm.Credentials.google(authCode);
+
+        try {
+            var user = await stitchAppClient.logIn(credentials);
+        } catch (err) {
+            console.error("flutterMongoStitchWeb -> Failed to sign in with google", err);
+        }
 
         var userObject = {
             "id": user.id,
@@ -217,8 +223,13 @@ function Mongo() {
     }
 
     Mongo.prototype.signInWithFacebook = async function(token){
-        var user = await stitchAppClient.auth.loginWithCredential(
-            new stitch.FacebookCredential(token))
+        const credentials = Realm.Credentials.facebook(token);
+
+        try {
+            var user = await stitchAppClient.logIn(credentials);
+        } catch (err) {
+            console.error("flutterMongoStitchWeb -> Failed to sign in with facebook", err);
+        }
 
         var userObject = {
             "id": user.id,
@@ -235,8 +246,13 @@ function Mongo() {
     }
 
     Mongo.prototype.signInWithCustomJwt = async function(jwtString){
-        var user = await stitchAppClient.auth.loginWithCredential(
-            new stitch.CustomCredential(jwtString));
+        const credentials = Realm.Credentials.jwt(jwtString);
+
+        try {
+            var user = await stitchAppClient.logIn(credentials);
+        } catch (err) {
+            console.error("flutterMongoStitchWeb -> Failed to sign in with custom jwt", err);
+        }
 
         var userObject = {
             "id": user.id,
@@ -255,8 +271,13 @@ function Mongo() {
     Mongo.prototype.signInWithCustomFunction = async function(jsonData){
         var json = JSON.parse(jsonData);
 
-        var user = await stitchAppClient.auth.loginWithCredential(
-            new stitch.FunctionCredential(json));
+        const credentials = Realm.Credentials.function(json);
+
+        try {
+            var user = await stitchAppClient.logIn(credentials);
+        } catch (err) {
+            console.error("flutterMongoStitchWeb -> Failed to sign in with custom function", err);
+        }
 
         var userObject = {
             "id": user.id,
@@ -283,64 +304,66 @@ function Mongo() {
     };
 
     Mongo.prototype.logout  = async function(){
-        await stitchAppClient.logOut();
-        this.sendAuthListenerEvent(null);
-        console.log('flutterMongoStitchWeb -> logged out')
+        var user = await stitchAppClient.currentUser;
+        if (user!=null) {
+            await user.logOut();
+            this.sendAuthListenerEvent(null);
+            console.log('flutterMongoStitchWeb -> logged out');
+        }
     };
 
-     Mongo.prototype.getUserId  = async function(){
-         var user = await stitchAppClient.currentUser;
-
-         return new Promise((resolve, reject) => {
-            resolve(user.id);
-         });
-     };
-
-
-     Mongo.prototype.getUser  = async function(){
-         var user = await stitchAppClient.currentUser;
-         console.log('flutterMongoStitchWeb -> getUser, user: ' + user.id);
-
-         var userObject = {
-            "id": user.id,
-            "profile": {
-                'email': user.profile.email
-            }
-         };
-
-         return new Promise((resolve, reject) => {
-             resolve(JSON.stringify(userObject));
-         });
-     };
-
-     Mongo.prototype.sendResetPasswordEmail = async function(email){
+    Mongo.prototype.sendResetPasswordEmail = async function(email){
         var emailPassClient = stitch.Stitch.defaultAppClient.auth
                 .getProviderClient(stitch.UserPasswordAuthProviderClient.factory);
 
         await emailPassClient.sendResetPasswordEmail(email);
-     };
+    };
 
-     Mongo.prototype.callFunction  = async function(name, args/*, timeout*/){
+
+    // user information methods
+
+    Mongo.prototype.getUserId  = async function(){
+        var user = await stitchAppClient.currentUser;
+
+        return new Promise((resolve, reject) => {
+            resolve(user.id);
+        });
+    };
+
+
+    Mongo.prototype.getUser  = async function(){
+        var user = await stitchAppClient.currentUser;
+        console.log('flutterMongoStitchWeb -> getUser, user: ' + user.id);
+
+        var userObject = {
+            "id": user.id,
+            "profile": {
+                'email': user.profile.email
+            }
+        };
+
+        return new Promise((resolve, reject) => {
+            resolve(JSON.stringify(userObject));
+        });
+    };
+
+
+    // callFunction method
+
+    Mongo.prototype.callFunction  = async function(name, args/*, timeout*/){
         console.log('flutterMongoStitchWeb -> callFunction, name: ' + name);
         var result = await stitchAppClient.currentUser.callFunction(name, args);
         console.log('flutterMongoStitchWeb -> callFunction, result: ',result);
 
-         return new Promise((resolve, reject) => {
-             resolve(result);
-         });
-     };
-     // --------------------------
-
-    Mongo.prototype.sendAuthListenerEvent = async function(arg){
-
-         var authEvent = new CustomEvent("authChange", {
-                detail: arg
-         });
-
-         document.dispatchEvent(authEvent);
+        return new Promise((resolve, reject) => {
+            resolve(result);
+        });
     };
 
-     Mongo.prototype.setupWatchCollection = async function(databaseName, collectionName, arg){
+
+    // STREAM SOLUTION
+
+    Mongo.prototype.setupWatchCollection = async function(databaseName, collectionName, arg){
         var collection = this.getCollection(databaseName, collectionName)
 
         console.log(arg)
@@ -368,17 +391,36 @@ function Mongo() {
         // when the watched documents are updated.
         changeStream.onNext((event) => {
 
-          var results = {
-            "_id": event.fullDocument['_id']
-          }
-          var watchEvent = new CustomEvent("watchEvent."+databaseName+"."+collectionName, {
-               detail: JSON.stringify(results)
-          });
+            var results = {
+                "_id": event.fullDocument['_id']
+            }
+            var watchEvent = new CustomEvent("watchEvent."+databaseName+"."+collectionName, {
+                detail: JSON.stringify(results)
+            });
 
-          document.dispatchEvent(watchEvent);
+            document.dispatchEvent(watchEvent);
 
-//          // Be sure to close the stream when finished(?).
-//          changeStream.close()
+            // Be sure to close the stream when finished(?).
+            // changeStream.close()
         })
-     }
+    }
+
+    // private methods
+
+    Mongo.prototype.sendAuthListenerEvent = async function(arg){
+
+        var authEvent = new CustomEvent("authChange", {
+            detail: arg
+        });
+
+        document.dispatchEvent(authEvent);
+        this.getMongoClient();
+    };
+
+    Mongo.prototype.getMongoClient = async function(){
+        if (stitchAppClient.currentUser!=null) {
+            mongoClient = stitchAppClient.currentUser.mongoClient("mongodb-atlas");
+            console.log('flutterMongoStitchWeb -> connectMongo, mongoClient: ', mongoClient);
+        }
+    };
 }
