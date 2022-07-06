@@ -14,10 +14,12 @@ function Mongo() {
         console.log('flutterMongoStitchWeb -> connectMongo, Realm: ',Realm);
         stitchAppClient = new Realm.App({ id: appId });
         console.log('flutterMongoStitchWeb -> connectMongo, stitchAppClient: ',stitchAppClient);
+        console.log('flutterMongoStitchWeb -> connectMongo, currentUser: ',stitchAppClient.currentUser);
 
-        mongoClient = stitchAppClient.currentUser.mongoClient("mongodb-atlas");
-        console.log('flutterMongoStitchWeb -> connectMongo, mongoClient: ', mongoClient);
-
+        if (stitchAppClient.currentUser!=null) {
+            mongoClient = stitchAppClient.currentUser.mongoClient("mongodb-atlas");
+            console.log('flutterMongoStitchWeb -> connectMongo, mongoClient: ', mongoClient);
+        }
         this.sendAuthListenerEvent(null);
     }
 
