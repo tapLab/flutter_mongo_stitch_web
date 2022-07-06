@@ -39,15 +39,8 @@ class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
       ]);
 
       String stitchUtilsAsset = await loadStitchUtilsAsset(
-          src: 'packages/flutter_mongo_stitch_web/assets/js/test.txt');
-      print(
-          'loadStitchUtilsAsset -> test txt loaded, len: ${stitchUtilsAsset.length}');
-      stitchUtilsAsset = await loadStitchUtilsAsset(
           src: 'packages/flutter_mongo_stitch_web/assets/js/stitchUtils.js');
-      print(
-          'loadStitchUtilsAsset -> js loaded, len: ${stitchUtilsAsset.length}');
       injectJsFromAsset(src: stitchUtilsAsset);
-      print('injectJsFromAsset done');
 
       _mongoClient = MyMongoClient();
       _injected = true;
