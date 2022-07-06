@@ -12,7 +12,7 @@ function Mongo() {
     Mongo.prototype.connectMongo  = function(appId) {
         console.log('flutterMongoStitchWeb -> connectMongo, appId: ' + appId);
         console.log('flutterMongoStitchWeb -> connectMongo, Realm: ',Realm);
-        stitchAppClient = Realm.App({ id: appId });
+        stitchAppClient = new Realm.App({ id: appId });
         console.log('flutterMongoStitchWeb -> connectMongo, stitchAppClient: ',stitchAppClient);
 
         mongoClient = stitchAppClient.currentUser.mongoClient("mongodb-atlas");
