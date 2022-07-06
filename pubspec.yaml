@@ -24,8 +24,7 @@ dev_dependencies:
 
 flutter:
     assets:
-        - assets/js/test.txt
-        - assets/js/stitchUtils.js
+        - assets/js/realmUtils.js
     plugin:
         platforms:
             web:
