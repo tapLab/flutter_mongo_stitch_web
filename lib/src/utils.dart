@@ -30,6 +30,9 @@ html.ScriptElement _createScriptTagFromSrc(String src) => html.ScriptElement()
   ..innerText = src;
 
 injectJsFromAsset({String src, html.HtmlElement target}) {
+  print('injectJsFromAsset -> before _createScriptTagFromSrc');
   html.HtmlElement tag = _createScriptTagFromSrc(src);
+  print('injectJsFromAsset -> tag: ${tag.toString()}');
   (target ?? html.querySelector('head')).children.add(tag);
+  print('injectJsFromAsset -> done');
 }
