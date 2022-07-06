@@ -1,4 +1,4 @@
-@JS('Realm')
+@JS()
 library bundle.iife.js;
 
 import 'dart:async';
