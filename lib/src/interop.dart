@@ -1,5 +1,5 @@
-@JS()
-library stitch.js;
+@JS('Realm')
+library bundle.iife.js;
 
 import 'dart:async';
 import 'dart:convert';

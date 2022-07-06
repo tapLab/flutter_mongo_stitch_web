@@ -19,7 +19,7 @@ class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
   MyMongoClient _mongoClient;
   bool _injected = false;
 
-  Future<String> loadStitchUtilsAsset({String src}) async {
+  Future<String> loadUtilsAsset({String src}) async {
     return await rootBundle.loadString(src);
   }
 
@@ -33,14 +33,13 @@ class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
       // Inject the desired libraries
 
       await injectJSLibraries([
-        "https://s3.amazonaws.com/stitch-sdks/js/bundles/4.9.0/stitch.js",
-        //"https://fluttermongostitch.s3.us-east-2.amazonaws.com/stitchUtils.js",
-        //"https://unpkg.com/realm-web/dist/bundle.iife.js",
+        //"https://s3.amazonaws.com/stitch-sdks/js/bundles/4.9.0/stitch.js"
+        "https://unpkg.com/realm-web/dist/bundle.iife.js"
       ]);
 
-      String stitchUtilsAsset = await loadStitchUtilsAsset(
-          src: 'packages/flutter_mongo_stitch_web/assets/js/stitchUtils.js');
-      injectJsFromAsset(src: stitchUtilsAsset);
+      String utilsAsset = await loadUtilsAsset(
+          src: 'packages/flutter_mongo_stitch_web/assets/js/realmUtils.js');
+      injectJsFromAsset(src: utilsAsset);
 
       _mongoClient = MyMongoClient();
       _injected = true;
