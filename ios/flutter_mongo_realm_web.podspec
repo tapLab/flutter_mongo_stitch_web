@@ -3,8 +3,8 @@
 # Run `pod lib lint streams_channel.podspec' to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'flutter_mongo_stitch_web'
-  s.version          = '0.3.0'
+  s.name             = 'flutter_mongo_realm_web'
+  s.version          = '0.1.0'
   s.summary          = 'A new flutter plugin project.'
   s.description      = <<-DESC
 A new flutter plugin project.

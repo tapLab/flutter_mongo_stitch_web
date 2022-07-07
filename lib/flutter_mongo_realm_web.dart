@@ -1,44 +1,40 @@
-library flutter_mongo_stitch_web;
+library flutter_mongo_realm_web;
 
 import 'dart:convert';
 import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_mongo_stitch_platform_interface/flutter_mongo_stitch_platform_interface.dart';
+import 'package:flutter_mongo_realm_platform_interface/flutter_mongo_realm_platform_interface.dart';
 
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 import 'src/utils.dart';
 import 'src/interop.dart';
 
-/// The web implementation of [FlutterMongoStitchPlatform].
+/// The web implementation of [FlutterMongoRealmPlatform].
 ///
-/// This class implements the `package:flutter_mongo_stitch` functionality for the web.
-class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
+/// This class implements the `package:flutter_mongodb_realm` functionality for the web.
+class FlutterMongoRealmPlugin extends FlutterMongoRealmPlatform {
   MyMongoClient _mongoClient;
   bool _injected = false;
 
-  Future<String> loadUtilsAsset({String src}) async {
-    return await rootBundle.loadString(src);
+  static void registerWith(Registrar registrar) async {
+    // Registers this class as the default instance of [FlutterMongoRealmPlatform]
+    FlutterMongoRealmPlatform.instance = FlutterMongoRealmPlugin();
   }
 
-  static void registerWith(Registrar registrar) async {
-    // Registers this class as the default instance of [FlutterMongoStitchPlatform]
-    FlutterMongoStitchPlatform.instance = FlutterMongoStitchPlugin();
-  }
+  // init and connect
 
   Future<void> _init() async {
     if (!_injected) {
       // Inject the desired libraries
 
-      await injectJSLibraries([
-        //"https://s3.amazonaws.com/stitch-sdks/js/bundles/4.9.0/stitch.js"
-        "https://unpkg.com/realm-web/dist/bundle.iife.js"
-      ]);
+      await injectJSLibraries(
+          ["https://unpkg.com/realm-web/dist/bundle.iife.js"]);
 
-      String utilsAsset = await loadUtilsAsset(
-          src: 'packages/flutter_mongo_stitch_web/assets/js/realmUtils.js');
+      String utilsAsset = await rootBundle.loadString(
+          'packages/flutter_mongo_realm_web/assets/js/realmUtils.js');
       injectJsFromAsset(src: utilsAsset);
 
       _mongoClient = MyMongoClient();
@@ -49,12 +45,11 @@ class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
   @override
   Future connectToMongo(String appId) async {
     await _init();
-    print('FlutterMongoStitchWeb -> connectToMongo');
     _mongoClient.connectMongo(appId);
     return Future.value(true);
   }
 
-  ///==========================================================
+  // document methods
 
   @override
   Future insertDocument({
@@ -159,7 +154,7 @@ class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
     return Future.value(<int>[map["matchedCount"], map["modifiedCount"]]);
   }
 
-  /// ===========
+  // login methods
 
   @override
   Future signInAnonymously() async {
@@ -168,22 +163,21 @@ class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
   }
 
   @override
-  Future/*<CoreStitchUser>*/ signInWithUsernamePassword(
-      String username, String password) async {
+  Future signInWithUsernamePassword(String username, String password) async {
     var authResult =
         await _mongoClient.signInWithUsernamePassword(username, password);
     return Future.value(authResult);
   }
 
   @override
-  Future/*<CoreStitchUser>*/ signInWithGoogle(String authCode) async {
+  Future signInWithGoogle(String authCode) async {
     var authResult = await _mongoClient
         .signInWithGoogle(authCode); // implementation incomplete
     return Future.value(authResult);
   }
 
   @override
-  Future/*<CoreStitchUser>*/ signInWithFacebook(String accessToken) async {
+  Future signInWithFacebook(String accessToken) async {
     var authResult = await _mongoClient
         .signInWithFacebook(accessToken); // implementation incomplete
     return Future.value(authResult);
@@ -207,21 +201,11 @@ class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
     return Future.value(true);
   }
 
-  @override
-  Future getUserId() async {
-    var id = await _mongoClient.getUserId();
-    return Future.value(id);
-  }
+  // registration methods
 
   @override
   Future<bool> registerWithEmail(String email, String password) async {
     var authResult = await _mongoClient.registerWithEmail(email, password);
-    return Future.value(authResult);
-  }
-
-  @override
-  Future/*<CoreStitchUser>*/ getUser() async {
-    var authResult = await _mongoClient.getUser();
     return Future.value(authResult);
   }
 
@@ -231,13 +215,29 @@ class FlutterMongoStitchPlugin extends FlutterMongoStitchPlatform {
     return Future.value(true);
   }
 
-  /// =====
+  // user information methods
+
+  @override
+  Future getUserId() async {
+    var id = await _mongoClient.getUserId();
+    return Future.value(id);
+  }
+
+  @override
+  Future getUser() async {
+    var authResult = await _mongoClient.getUser();
+    return Future.value(authResult);
+  }
+
+  // callFunction method
 
   @override
   Future callFunction(String name, {List args, int requestTimeout}) async {
     var result = _mongoClient.callFunction(name, args); //, timeout);
     return Future.value(result);
   }
+
+  // STREAM SOLUTION
 
   @override
   Future setupWatchCollection(String collectionName, String databaseName,

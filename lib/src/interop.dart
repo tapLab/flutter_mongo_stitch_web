@@ -51,15 +51,15 @@ class Mongo {
 
   external signInWithCustomFunction(String token);
 
+  external logout();
+
   external registerWithEmail(String username, String password);
 
-  external logout();
+  external sendResetPasswordEmail(String email);
 
   external getUserId();
 
   external getUser();
-
-  external sendResetPasswordEmail(String email);
 
   external callFunction(String name, List args); //, int timeout);
 
@@ -75,7 +75,7 @@ class MyMongoClient {
 
   void connectMongo(String appId) => _mongo.connectMongo(appId);
 
-  //////
+  // mongoDB document methods
 
   Future<String> insertDocument(
       String databaseName, String collectionName, Map data) async {
@@ -140,7 +140,7 @@ class MyMongoClient {
     return docsUpdatedCount;
   }
 
-  //////
+  // login methods
 
   Future<Map> loginAnonymously() async {
     String result = await promiseToFuture(_mongo.loginAnonymously());
@@ -181,16 +181,25 @@ class MyMongoClient {
     return {"id": userMap['id']};
   }
 
+  Future<bool> logout() async {
+    await promiseToFuture(_mongo.logout());
+    return true;
+  }
+
+  // registration methods
+
   Future<bool> registerWithEmail(String username, String password) async {
     /*String result =*/ await promiseToFuture(
         _mongo.registerWithEmail(username, password));
     return true;
   }
 
-  Future<bool> logout() async {
-    await promiseToFuture(_mongo.logout());
+  Future<bool> sendResetPasswordEmail(String email) async {
+    await promiseToFuture(_mongo.sendResetPasswordEmail(email));
     return true;
   }
+
+  // user information methods
 
   Future<String> getUserId() async => await promiseToFuture(_mongo.getUserId());
 
@@ -200,10 +209,7 @@ class MyMongoClient {
     return userMap;
   }
 
-  Future<bool> sendResetPasswordEmail(String email) async {
-    await promiseToFuture(_mongo.sendResetPasswordEmail(email));
-    return true;
-  }
+  // callFunction method
 
   Future callFunction(String name, List args /*, int timeout*/) async {
     var result =

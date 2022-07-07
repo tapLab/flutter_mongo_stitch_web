@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "flutter_mongo_stitch_web",
+            "name": "flutter_mongo_realm_web",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "flutter_mongo_stitch_web (profile mode)",
+            "name": "flutter_mongo_realm_web (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "flutter_mongo_stitch_web (release mode)",
+            "name": "flutter_mongo_realm_web (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

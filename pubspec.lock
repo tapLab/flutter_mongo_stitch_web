@@ -55,12 +55,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_mongo_stitch_platform_interface:
+  flutter_mongo_realm_platform_interface:
     dependency: "direct main"
     description:
-      name: flutter_mongo_stitch_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "07bbae44375b78784f82ddfe268f6feb6d875bc8"
+      url: "https://github.com/tapLab/flutter_mongo_realm_platform_interface.git"
+    source: git
     version: "1.2.2"
   flutter_test:
     dependency: "direct dev"
@@ -113,7 +115,7 @@ packages:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "2.1.2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -177,4 +179,4 @@ packages:
     version: "2.1.1"
 sdks:
   dart: ">=2.14.0 <3.0.0"
-  flutter: ">=1.10.0"
+  flutter: ">=2.10.5"
